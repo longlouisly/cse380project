@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <grvy.h>
 #include "cliio.h"
 #include "chanvese.h"
 #include "gifwrite.h"
@@ -242,8 +243,7 @@ int main(int argc, char *argv[])
     
     printf("\nRegion averages\n");
     
-    if(f.NumChannels == 1)
-        printf("c1        : %.4f\nc2        : %.4f\n\n", c1[0], c2[0]);
+    if(f.NumChannels == 1) printf("c1        : %.4f\nc2        : %.4f\n\n", c1[0], c2[0]);
     else if(f.NumChannels == 3)
         printf("c1        : (%.4f, %.4f, %.4f)\nc2        : (%.4f, %.4f, %.4f)\n\n",
             c1[0], c1[1], c1[2], c2[0], c2[1], c2[2]);
@@ -386,6 +386,116 @@ Catch:
 
 static int ParseParam(programparams *Param, int argc, const char *argv[])
 {
+
+    int igot;
+    float mu, nu, lambda1, lambda2, tol, dt;
+    int maxIter, iterPerFrame, jpegQuality;
+    char *inputImage, *outputImage, *outputAnimation;  
+    char *paramFile = "./param.txt";  /*change to argv[1] eventually */
+
+    /* Initialize file to read */
+    igot = grvy_input_fopen(paramFile);    
+
+    /* Read variables and echo */
+    
+    if(grvy_input_fread_float("mu",&mu))
+      printf("--> %-10s = %f\n","mu",mu);
+    
+    if(grvy_input_fread_char("inputImage",&inputImage))  /*is this correct syntax for pointer to member of struct? */
+      printf("--> %-10s = %s\n","inputImage",inputImage);
+   
+    if(grvy_input_fread_char("outputAnimation",&outputAnimation))
+      printf("--> %-10s = %s\n","outputAnimation",outputAnimation);
+   
+    if(grvy_input_fread_char("outputImage",&outputImage))
+      printf("--> %-10s = %s\n","outputImage",outputImage);
+   
+    grvy_log_setlevel(GRVY_NOLOG);
+    grvy_log_setlevel(GRVY_INFO);
+    
+    grvy_input_register_float("nu",0.0);
+    grvy_input_register_float("lambda1",1.0);
+    grvy_input_register_float("lambda2",1.0);
+    grvy_input_register_char("phi0","NULL");
+    grvy_input_register_float("tol",1e-3);
+    grvy_input_register_int("maxIter",500);
+    grvy_input_register_float("dt",0.5);
+    grvy_input_register_int("iterPerFrame",10);
+    grvy_input_register_int("jpegQuality",85);
+
+    /* Dump file to stdout */
+    printf("\n ------ Full Dump ------\n\n");
+    grvy_input_fdump();
+    printf("\n ---- End Full Dump ----\n\n");
+
+    printf("\n ------ Full Dump (delimited) ------\n\n");
+    grvy_input_fdump_delim("# ");
+    printf(" ---- End Full Dump ----\n\n");
+
+    /* Dump to file */
+    printf("\n ------ Full Dump to param.out ------\n\n");
+    grvy_input_fdump_file("% ","param.out");
+    printf("\n ------ End Full Dump ------\n\n");
+
+
+    if(grvy_input_register_get_float("nu",&nu))
+      printf("registered float   = %f\n",nu);
+
+    if(grvy_input_register_get_float("lambda1",&lambda1))
+      printf("registered float   = %f\n",lambda1);
+
+    if(grvy_input_register_get_float("lambda2",&lambda2))
+      printf("registered float   = %f\n",lambda2);
+
+   /* if(grvy_input_register_get_char("phi0",NULL))
+      printf("registered float   = %f\n",NULL);
+   */
+
+    if(grvy_input_register_get_float("tol",&tol))
+      printf("registered float   = %f\n",tol);
+
+    if(grvy_input_register_get_int("maxIter",&maxIter))
+      printf("registered int   = %i\n",maxIter);
+
+    if(grvy_input_register_get_float("dt",&dt))
+      printf("registered float   = %f\n",dt);
+
+    if(grvy_input_register_get_int("iterPerFrame",&iterPerFrame))
+      printf("registered int   = %i\n",iterPerFrame);
+
+    if(grvy_input_register_get_int("jpegQuality",&jpegQuality))
+      printf("registered int   = %i\n",jpegQuality);
+
+    /* Read in variable that has registered default but 
+     may not be in param file */
+    
+    if(grvy_input_fread_float("nu",&nu))
+      printf("fread_float: nu = %f\n",nu);
+
+    if(grvy_input_fread_float("lambda1",&lambda1))
+      printf("fread_float: lambda1 = %f\n",lambda1);
+
+    if(grvy_input_fread_float("lambda2",&lambda2))
+      printf("fread_float: lambda2 = %f\n",lambda2);
+
+    if(grvy_input_fread_float("tol",&tol))
+      printf("fread_float: tol = %f\n",tol);
+
+    if(grvy_input_fread_int("maxIter",&maxIter))
+      printf("fread_int: maxIter = %i\n",maxIter);
+
+    if(grvy_input_fread_float("dt",&dt))
+      printf("fread_float: dt = %f\n",dt);
+
+    if(grvy_input_fread_int("iterPerFrame",&iterPerFrame))
+      printf("fread_int: iterPerFrame = %i\n",iterPerFrame);
+
+    if(grvy_input_fread_int("jpegQuality",&jpegQuality))
+      printf("fread_int: jpegQuality = %i\n",jpegQuality);
+ 
+    grvy_input_fclose();
+
+
     const char *Option, *Value;
     num NumValue;
     char TokenBuf[256];
