@@ -10,6 +10,7 @@
 LDLIBJPEG=-ljpeg
 LDLIBPNG=-lpng -lz
 LDLIBTIFF=-ltiff
+LDLIBGRVY=-lgrvy
 
 # Uncomment this line to perform computations in single precision
 # instead of double precision.
@@ -17,9 +18,10 @@ NUM_SINGLE = -DNUM_SINGLE
 
 ##
 # Standard make settings
-CFLAGS=-O3 -ansi -pedantic -Wall -Wextra $(NUM_SINGLE)
-LDFLAGS=
-LDLIB=-lm $(LDLIBFFTW3) $(LDLIBJPEG) $(LDLIBPNG) $(LDLIBTIFF)
+CC=g++
+CFLAGS=-O0 -ansi -pedantic -Wall -Wextra -I$(TACC_GRVY_INC) $(NUM_SINGLE)
+LDFLAGS=-L$(TACC_GRVY_LIB)
+LDLIB=-lm $(LDLIBFFTW3) $(LDLIBJPEG) $(LDLIBPNG) $(LDLIBTIFF) $(LDLIBGRVY)
 
 CHANVESE_SOURCES=chanvesecli.c chanvese.c cliio.c \
 imageio.c basic.c gifwrite.c rgb2ind.c
