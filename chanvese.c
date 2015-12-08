@@ -158,8 +158,8 @@ int ChanVese(num *Phi, const num *f,
     
     if(NumChannels > 1)
     {
-        if(!(c1 = Malloc(sizeof(num)*NumChannels))
-            || !(c2 = Malloc(sizeof(num)*NumChannels)))
+        if(!(c1 = (num*) Malloc(sizeof(num)*NumChannels))
+            || !(c2 = (num*) Malloc(sizeof(num)*NumChannels)))
             return 0;
     }
     else
