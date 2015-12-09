@@ -63,8 +63,7 @@ typedef struct
     const num *Image;
     unsigned char *Plot;
     int *Delays;
-    int IterPerFrame;
-    int NumFrames;
+    int IterPerFrame; int NumFrames;
 } plotparam;
 
 
@@ -72,22 +71,26 @@ static void PrintHelpMessage()
 {
     puts("chanvese, P. Getreuer 2011-2012\n"
     "Chan-Vese segmentation IPOL demo\n\n"
-    "Usage: chanvese [param:value ...] input animation final \n\n"
-    "where \"input\" and \"final\" are "
+    "Usage: chanvese paramFile \n\n"
+    "where paramFile is a text file containing:\n"
+    "   inputImage = <filename> \n"
+    "   outputImage = <filename> \n"
+    "   outputAnimation = <filename> \n"
+    "where \"inputImage\" and \"outputImage\" are "
     READIMAGE_FORMATS_SUPPORTED " files\n"
-    "and \"animation\" is a GIF file.\n");
-    puts("Parameters\n");
-    puts("   mu:<number>           length penalty (default 0.25)");
-    puts("   nu:<number>           area penalty (default 0.0)");
-    puts("   lambda1:<number>      fit weight inside the cuve (default 1.0)");
-    puts("   lambda2:<number>      fit weight outside the curve (default 1.0)");
-    puts("   phi0:<file>           read initial level set from an image or text file");
-    puts("   tol:<number>          convergence tolerance (default 1e-3)");
-    puts("   maxiter:<number>      maximum number of iterations (default 500)");
-    puts("   dt:<number>           time step (default 0.5)\n");
-    puts("   iterperframe:<number> iterations per frame (default 10)\n");
+    "and \"outputAnimation\" is a GIF file.\n");
+    puts("Optional Parameters\n");
+    puts("   mu = <number>           length penalty (default 0.25)");
+    puts("   nu = <number>           area penalty (default 0.0)");
+    puts("   lambda1 = <number>      fit weight inside the curve (default 1.0)");
+    puts("   lambda2 = <number>      fit weight outside the curve (default 1.0)");
+    puts("   phi0 = <filename>           read initial level set from an image or text file");
+    puts("   tol = <number>          convergence tolerance (default 1e-3)");
+    puts("   maxIter = <number>      maximum number of iterations (default 500)");
+    puts("   dt = <number>           time step (default 0.5)\n");
+    puts("   iterPerFrame = <number> iterations per frame (default 10)\n");
 #ifdef LIBJPEG_SUPPORT
-    puts("   jpegquality:<number>  Quality for saving JPEG images (0 to 100)\n");
+    puts("   jpegQuality = <number>  Quality for saving JPEG images (0 to 100)\n");
 #endif
     puts("Example:\n"
 #ifdef LIBPNG_SUPPORT
@@ -95,6 +98,7 @@ static void PrintHelpMessage()
 #else
     "   chanvese tol:1e-5 mu:0.5 input.bmp animation.gif final.bmp\n");
 #endif
+    exit(1);
 }
 
 
@@ -391,17 +395,34 @@ static int ParseParam(programparams *Param, int argc, const char *argv[])
     float mu, nu, lambda1, lambda2, tol, dt;
     int maxIter, iterPerFrame, jpegQuality;
     char *inputImage, *outputImage, *outputAnimation;  
-    char *paramFile = "./param.txt";  /*change to argv[1] eventually */
+    const char *paramFile; 
+
+
+    if(!(Param->Opt = ChanVeseNewOpt()))
+    {
+        fprintf(stderr, "Out of memory.\n");
+        return 0;
+    }
+        
+    if(argc != 2)
+    {
+        PrintHelpMessage();
+        return 0;
+    }
+
+    paramFile = argv[1];
 
     /* Initialize file to read */
     igot = grvy_input_fopen(paramFile);    
+    if(!igot)
+      exit(1);
 
     /* Read variables and echo */
     
     if(grvy_input_fread_float("mu",&mu))
       printf("--> %-10s = %f\n","mu",mu);
     
-    if(grvy_input_fread_char("inputImage",&inputImage))  /*is this correct syntax for pointer to member of struct? */
+    if(grvy_input_fread_char("inputImage",&inputImage)) 
       printf("--> %-10s = %s\n","inputImage",inputImage);
    
     if(grvy_input_fread_char("outputAnimation",&outputAnimation))
@@ -428,12 +449,8 @@ static int ParseParam(programparams *Param, int argc, const char *argv[])
     grvy_input_fdump();
     printf("\n ---- End Full Dump ----\n\n");
 
-    printf("\n ------ Full Dump (delimited) ------\n\n");
-    grvy_input_fdump_delim("# ");
-    printf(" ---- End Full Dump ----\n\n");
-
     /* Dump to file */
-    printf("\n ------ Full Dump to param.out ------\n\n");
+    printf("\n ------ Full Dump to %s ------\n\n", "param.out");
     grvy_input_fdump_file("% ","param.out");
     printf("\n ------ End Full Dump ------\n\n");
 
@@ -495,33 +512,31 @@ static int ParseParam(programparams *Param, int argc, const char *argv[])
  
     grvy_input_fclose();
 
-
+/*
     const char *Option, *Value;
     num NumValue;
     char TokenBuf[256];
     int k, kread, Skip;
+*/
+
+
     
-    
-    /* Set parameter defaults */
-    Param->InputFile = NULL;
-    Param->OutputFile = NULL;
-    Param->JpegQuality = 85;
+    /* Set parameters */
+    Param->InputFile = inputImage;
+    Param->OutputFile = outputAnimation;
+    Param->OutputFile2 = outputImage;
+    Param->JpegQuality = jpegQuality;
     Param->Phi = NullImage;
-    Param->Opt = NULL;
-    Param->IterPerFrame = 10;
-    
-    if(!(Param->Opt = ChanVeseNewOpt()))
-    {
-        fprintf(stderr, "Out of memory.\n");
-        return 0;
-    }
-        
-    if(argc < 2)
-    {
-        PrintHelpMessage();
-        return 0;
-    }
-        
+    //Param->Opt = NULL;
+    Param->IterPerFrame = iterPerFrame;
+    ChanVeseSetTol(Param->Opt,tol);
+    ChanVeseSetMu(Param->Opt,mu); 
+    ChanVeseSetNu(Param->Opt,nu); 
+    ChanVeseSetLambda1(Param->Opt,lambda1); 
+    ChanVeseSetLambda2(Param->Opt,lambda2); 
+    ChanVeseSetDt(Param->Opt,dt); 
+ 
+ /*       
     k = 1;
     
     while(k < argc)
@@ -539,7 +554,7 @@ static int ParseParam(programparams *Param, int argc, const char *argv[])
         }
         
         if(Option[0] == '-')     /* Argument begins with two dashes "--" */
-        {
+/*        {
             PrintHelpMessage();
             return 0;
         }
@@ -674,7 +689,7 @@ static int ParseParam(programparams *Param, int argc, const char *argv[])
         PrintHelpMessage();
         return 0;
     }
-
+*/
     return 1;
 }
 
