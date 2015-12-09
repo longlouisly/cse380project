@@ -58,6 +58,9 @@ chanvese: $(CHANVESE_OBJECTS)
 .c.o:
 	$(CC) -c $(ALLCFLAGS) $< -o $@
 
+check: chanvese
+	test/test.sh
+
 clean:
 	$(RM) $(CHANVESE_OBJECTS) chanvese
 
