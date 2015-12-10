@@ -1,6 +1,3 @@
-# GCC makefile for Chan-Vese segmentation IPOL demo
-# Pascal Getreuer
-# June 17, 2012
 
 # The following three statements determine the build configuration.
 # For handling different image formats, the program can be linked with
@@ -10,6 +7,9 @@
 LDLIBJPEG=-ljpeg
 LDLIBPNG=-lpng -lz
 LDLIBTIFF=-ltiff
+
+## Other libraries and include directory
+INCLUDE_DIR=include
 LDLIBGRVY=-lgrvy
 
 # Uncomment this line to perform computations in single precision
@@ -19,7 +19,7 @@ NUM_SINGLE = -DNUM_SINGLE
 ##
 # Standard make settings
 CC=g++
-CFLAGS=-O0 -ansi -pedantic -Wall -Wextra -I$(TACC_GRVY_INC) $(NUM_SINGLE)
+CFLAGS=-O0 -ansi -pedantic -Wall -Wextra -I$(TACC_GRVY_INC) -I$(INCLUDE_DIR) $(NUM_SINGLE)
 LDFLAGS=-L$(TACC_GRVY_LIB)
 LDLIB=-lm $(LDLIBFFTW3) $(LDLIBJPEG) $(LDLIBPNG) $(LDLIBTIFF) $(LDLIBGRVY)
 
