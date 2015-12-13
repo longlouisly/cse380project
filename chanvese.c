@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <Eigen/Dense>
 #include "chanvese.h"
 
 #define Malloc(s)    malloc(s)
