@@ -1152,7 +1152,7 @@ Catch:
 * \c ReadPng, the caller should open \c File as a FILE pointer in binary read
 * mode.  When \c ReadPng is complete, the caller should close \c File.
 */
-static int ReadPng(uint32_t **Image, int *Width, int *Height, FILE *File)
+int ReadPng(uint32_t **Image, int *Width, int *Height, FILE *File)
 {
     png_bytep *RowPointers;
     png_byte Header[8];

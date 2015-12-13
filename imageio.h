@@ -91,5 +91,7 @@ void *ReadImage(int *Width, int *Height,
 
 int WriteImage(void *Image, int Width, int Height,
     const char *FileName, unsigned Format, int Quality);
-    
+
+int ReadPng(uint32_t **Image, int *Width, int *Height, FILE *File);
+
 #endif /* _IMAGEIO_H_ */
