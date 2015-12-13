@@ -69,9 +69,9 @@ typedef struct
 
 static void PrintHelpMessage()
 {
-    puts("chanvese, P. Getreuer 2011-2012\n"
+    puts("Original code from P. Getreuer 2011-2012\n"
     "Chan-Vese segmentation IPOL demo\n\n"
-    "Usage: chanvese paramFile \n\n"
+    "Usage: chanvese <paramFile> \n\n"
     "where paramFile is a text file containing:\n"
     "   inputImage = <filename> \n"
     "   outputImage = <filename> \n"
@@ -92,12 +92,7 @@ static void PrintHelpMessage()
 #ifdef LIBJPEG_SUPPORT
     puts("   jpegQuality = <number>  Quality for saving JPEG images (0 to 100)\n");
 #endif
-    puts("Example:\n"
-#ifdef LIBPNG_SUPPORT
-    "   chanvese tol:1e-5 mu:0.5 input.png animation.gif final.png\n");
-#else
-    "   chanvese tol:1e-5 mu:0.5 input.bmp animation.gif final.bmp\n");
-#endif
+
     exit(1);
 }
 
@@ -123,6 +118,8 @@ int WriteBinary(image Phi, const char *File)
     
     Success = WriteImage(Temp, Phi.Width, Phi.Height, File,
         IMAGEIO_U8 | IMAGEIO_GRAYSCALE, 0);
+    
+    printf("Segmented image written to \"%s\".\n", File);
     
     free(Temp);
     return Success;
@@ -163,7 +160,7 @@ int WriteAnimation(plotparam *PlotParam, int Width, int Height,
         goto Catch;
     }
     else
-        printf("Output written to \"%s\".\n", OutputFile);
+        printf("Animation written to \"%s\".\n", OutputFile);
     
     Success = 1;
 Catch:
