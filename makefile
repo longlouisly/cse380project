@@ -24,7 +24,7 @@ LDFLAGS=-L$(TACC_GRVY_LIB)
 LDLIB=-lm $(LDLIBFFTW3) $(LDLIBJPEG) $(LDLIBPNG) $(LDLIBTIFF) $(LDLIBGRVY)
 
 CHANVESE_SOURCES=chanvesecli.c chanvese.c cliio.c \
-imageio.c basic.c gifwrite.c rgb2ind.c
+imageio.c basic.c gifwrite.c rgb2ind.c 
 
 ARCHIVENAME=chanvese_$(shell date -u +%Y%m%d)
 SOURCES=chanvesecli.c chanvese.c chanvese.h cliio.c cliio.h \
@@ -50,19 +50,23 @@ CHANVESE_OBJECTS=$(CHANVESE_SOURCES:.c=.o)
 .SUFFIXES: .c .o
 .PHONY: all clean rebuild srcdoc dist dist-zip
 
-all: chanvese
+all: chanvese compare
 
 chanvese: $(CHANVESE_OBJECTS)
 	$(CC) $(LDFLAGS) $(CHANVESE_OBJECTS) $(LDLIB) -o $@
 
+# Special syntax to take all .c and create .o files
 .c.o:
 	$(CC) -c $(ALLCFLAGS) $< -o $@
 
-check: chanvese
+compare: compare.o
+	$(CC) $(LDFLAGS) compare.o imageio.o basic.o $(LDLIB) -o $@
+
+check: chanvese compare test/test.sh
 	test/test.sh
 
 clean:
-	$(RM) $(CHANVESE_OBJECTS) chanvese
+	$(RM) $(CHANVESE_OBJECTS) compare.o compare chanvese
 
 rebuild: clean all
 
