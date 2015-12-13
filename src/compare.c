@@ -13,10 +13,14 @@ int main(int argc,char *argv[]){
   FILE *file1, *file2;
   uint32_t *image1 = NULL;
   uint32_t *image2 = NULL;
-  
+ 
+  if (argc<2){
+    ErrorMessage("Usage: compare <image1> <image2> ");
+    exit(1);
+  } 
+
   const char *filename1 = argv[1];
   const char *filename2 = argv[2];
-  
   
   if (! (file1 = fopen (filename1,"rb")))
     ErrorMessage("Error: cannot open %s", filename1);
@@ -35,7 +39,7 @@ int main(int argc,char *argv[]){
   // Had some issues extracting data from ReadPng format
   // Ideally would use Eigen to compare the two images
   // Then
-  printf("\n\n Verification test complete: Things are not wrong\n\n");  
+  printf("\n\nVerification test complete: Things are not wrong\n\n");  
  
 
   fclose(file1);
